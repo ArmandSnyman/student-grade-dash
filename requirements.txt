@@ -4,3 +4,4 @@ pandas
 scikit-learn
 tensorflow
 gunicorn
+pip freeze > requirements.txt
