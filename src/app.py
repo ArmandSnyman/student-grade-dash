@@ -7,19 +7,16 @@ import pandas as pd
 import os
 import joblib
 
-# Construct paths relative to app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ARTIFACTS_DIR = os.path.join(BASE_DIR, "..", "artifacts")
 MODEL_PATH = os.path.join(ARTIFACTS_DIR, "student_grade_classifier.h5")
 SCALER_PATH = os.path.join(ARTIFACTS_DIR, "scaler.joblib")
 
-# Debug paths
 print("Current Working Directory:", os.getcwd())
 print("Artifacts directory:", ARTIFACTS_DIR)
 print("Model file exists:", os.path.exists(MODEL_PATH))
 print("Scaler file exists:", os.path.exists(SCALER_PATH))
 
-# Load the trained model and scaler
 try:
     model = load_model(MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
@@ -29,11 +26,9 @@ except Exception as e:
     print(f"Error loading model or scaler: {e}")
     raise
 
-# Initialize Dash app
 app = dash.Dash(__name__)
 server = app.server  # Needed for deployment on Render
 
-# Define app layout
 app.layout = html.Div([
     html.H1("Student Grade Predictor", style={'textAlign': 'center'}),
     html.Div([
@@ -71,7 +66,6 @@ app.layout = html.Div([
     ], style={'maxWidth': '600px', 'margin': 'auto', 'padding': '20px'})
 ])
 
-# Prediction logic
 @app.callback(
     Output('prediction-output', 'children'),
     Input('predict-button', 'n_clicks'),
@@ -126,10 +120,8 @@ def predict_grade(n_clicks, studentid, age, gender, ethnicity, parentedu, studyt
         print(f"Error in prediction: {e}")
         return f"Error: {str(e)}"
 
-# Debug callback registration
 print("Callback registered for predict-button")
 
-# Run the app
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 10000))
     app.run_server(debug=False, host="0.0.0.0", port=port)
