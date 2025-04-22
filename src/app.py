@@ -57,7 +57,7 @@ app.layout = html.Div([
         
         html.Br(),
         html.Button("Predict Grade", id='predict-button', n_clicks=0),
-        html.H2(id='prediction-output', style={'marginTop': '20px'})
+        html.H2(id='prediction-output', className='prediction-result')
     ], className='form-container')
 ])
 
