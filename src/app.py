@@ -9,7 +9,7 @@ import joblib
 
 # Construct paths relative to app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ARTIF.ACT_DIR = os.path.join(BASE_DIR, "..", "artifacts")
+ARTIFACTS_DIR = os.path.join(BASE_DIR, "..", "artifacts")
 MODEL_PATH = os.path.join(ARTIFACTS_DIR, "student_grade_classifier.h5")
 SCALER_PATH = os.path.join(ARTIFACTS_DIR, "scaler.joblib")
 
@@ -37,6 +37,8 @@ server = app.server  # Needed for deployment on Render
 app.layout = html.Div([
     html.H1("Student Grade Predictor", style={'textAlign': 'center'}),
     html.Div([
+        html.Label("Student ID (e.g., 1000-3392):"),
+        dcc.Input(id='studentid', type='number', min=1000, max=3392, step=1, value=2000),
         html.Label("Age:"),
         dcc.Input(id='age', type='number', min=15, max=18, step=1, value=16),
         html.Label("Gender (0 = Male, 1 = Female):"),
@@ -61,6 +63,8 @@ app.layout = html.Div([
         dcc.Input(id='music', type='number', min=0, max=1, value=0),
         html.Label("Volunteering (0=No, 1=Yes):"),
         dcc.Input(id='volunteer', type='number', min=0, max=1, value=0),
+        html.Label("GPA (0-4):"),
+        dcc.Input(id='gpa', type='number', min=0, max=4, step=0.1, value=2.5),
         html.Br(),
         html.Button("Predict Grade", id='predict-button', n_clicks=0),
         html.H2(id='prediction-output', style={'color': 'red', 'fontSize': '24px', 'marginTop': '20px'})
@@ -72,6 +76,7 @@ app.layout = html.Div([
     Output('prediction-output', 'children'),
     Input('predict-button', 'n_clicks'),
     [
+        State('studentid', 'value'),
         State('age', 'value'),
         State('gender', 'value'),
         State('ethnicity', 'value'),
@@ -83,7 +88,8 @@ app.layout = html.Div([
         State('extra', 'value'),
         State('sports', 'value'),
         State('music', 'value'),
-        State('volunteer', 'value')
+        State('volunteer', 'value'),
+        State('gpa', 'value')
     ]
 )
 def predict_grade(n_clicks, *inputs):
@@ -99,8 +105,6 @@ def predict_grade(n_clicks, *inputs):
     
     try:
         inputs = [float(x) for x in inputs]
-        # Add default values for StudentID and GPA
-        inputs = [1000] + list(inputs) + [3.0]  # StudentID=1000, GPA=3.0
         input_array = np.array(inputs).reshape(1, -1)
         print(f"Input array: {input_array}")
         dummy_df = pd.DataFrame([inputs], columns=[
