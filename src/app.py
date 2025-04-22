@@ -5,7 +5,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import pandas as pd
 import os
-
+import joblib
 # Load the trained model
 model = load_model("artifacts/student_grade_classifier.h5")
 
@@ -94,8 +94,8 @@ def predict_grade(n_clicks, *inputs):
         'Absences', 'Tutoring', 'ParentalSupport', 'Extracurricular', 
         'Sports', 'Music', 'Volunteering'
     ])
-    scaler = StandardScaler()
-    dummy_df_scaled = scaler.fit_transform(dummy_df)  # WARNING: this should use the original scaler
+    scaler = joblib.load("artifacts/scaler.joblib")
+    dummy_df_scaled = scaler.transform(dummy_df)  # WARNING: this should use the original scaler
 
     prediction = model.predict(dummy_df_scaled)
     grade_class = np.argmax(prediction)
