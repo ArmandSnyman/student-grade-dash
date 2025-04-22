@@ -9,7 +9,7 @@ import joblib
 
 # Construct paths relative to app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ARTIFACTS_DIR = os.path.join(BASE_DIR, "..", "artifacts")
+ARTIF.ACT_DIR = os.path.join(BASE_DIR, "..", "artifacts")
 MODEL_PATH = os.path.join(ARTIFACTS_DIR, "student_grade_classifier.h5")
 SCALER_PATH = os.path.join(ARTIFACTS_DIR, "scaler.joblib")
 
@@ -23,6 +23,8 @@ print("Scaler file exists:", os.path.exists(SCALER_PATH))
 try:
     model = load_model(MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
+    print("Scaler feature names:", scaler.feature_names_in_)
+    print("Model input shape:", model.input_shape)
 except Exception as e:
     print(f"Error loading model or scaler: {e}")
     raise
@@ -91,20 +93,20 @@ def predict_grade(n_clicks, *inputs):
         print("No clicks yet, returning empty")
         return ""
     
-    # Check for None or invalid inputs
     if any(x is None for x in inputs):
         print("Error: One or more inputs are missing")
         return "Error: Please fill in all fields"
     
     try:
-        # Convert inputs to floats to ensure numeric
         inputs = [float(x) for x in inputs]
+        # Add default values for StudentID and GPA
+        inputs = [1000] + list(inputs) + [3.0]  # StudentID=1000, GPA=3.0
         input_array = np.array(inputs).reshape(1, -1)
         print(f"Input array: {input_array}")
         dummy_df = pd.DataFrame([inputs], columns=[
-            'Age', 'Gender', 'Ethnicity', 'ParentalEducation', 'StudyTimeWeekly',
+            'StudentID', 'Age', 'Gender', 'Ethnicity', 'ParentalEducation', 'StudyTimeWeekly',
             'Absences', 'Tutoring', 'ParentalSupport', 'Extracurricular', 
-            'Sports', 'Music', 'Volunteering'
+            'Sports', 'Music', 'Volunteering', 'GPA'
         ])
         print(f"DataFrame: {dummy_df}")
         dummy_df_scaled = scaler.transform(dummy_df)
