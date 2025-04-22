@@ -48,27 +48,27 @@ app.layout = html.Div([
         html.Label("Parental Education (0-4):"),
         dcc.Input(id='parentedu', type='number', min=0, max=4, step=1, value=2),
         html.Label("Study Time per Week (hours):"),
-        dcc.Input(id='studytime', type='number', min=0, max=20, value=5),
+        dcc.Input(id='studytime', type='number', min=0, max=20, step=0.1, value=5.0),
         html.Label("Absences:"),
-        dcc.Input(id='absences', type='number', min=0, max=30, value=2),
+        dcc.Input(id='absences', type='number', min=0, max=30, step=1, value=2),
         html.Label("Tutoring (0=No, 1=Yes):"),
         dcc.Input(id='tutoring', type='number', min=0, max=1, step=1, value=0),
         html.Label("Parental Support (0-4):"),
         dcc.Input(id='parentsupport', type='number', min=0, max=4, step=1, value=3),
         html.Label("Extracurricular (0=No, 1=Yes):"),
-        dcc.Input(id='extra', type='number', min=0, max=1, value=1),
+        dcc.Input(id='extra', type='number', min=0, max=1, step=1, value=1),
         html.Label("Sports (0=No, 1=Yes):"),
-        dcc.Input(id='sports', type='number', min=0, max=1, value=0),
+        dcc.Input(id='sports', type='number', min=0, max=1, step=1, value=0),
         html.Label("Music (0=No, 1=Yes):"),
-        dcc.Input(id='music', type='number', min=0, max=1, value=0),
+        dcc.Input(id='music', type='number', min=0, max=1, step=1, value=0),
         html.Label("Volunteering (0=No, 1=Yes):"),
-        dcc.Input(id='volunteer', type='number', min=0, max=1, value=0),
+        dcc.Input(id='volunteer', type='number', min=0, max=1, step=1, value=0),
         html.Label("GPA (0-4):"),
         dcc.Input(id='gpa', type='number', min=0, max=4, step=0.1, value=2.5),
         html.Br(),
         html.Button("Predict Grade", id='predict-button', n_clicks=0),
         html.H2(id='prediction-output', style={'color': 'red', 'fontSize': '24px', 'marginTop': '20px'})
-    ], className='form-container')
+    ], style={'maxWidth': '600px', 'margin': 'auto', 'padding': '20px'})
 ])
 
 # Prediction logic
@@ -90,14 +90,13 @@ app.layout = html.Div([
         State('music', 'value'),
         State('volunteer', 'value'),
         State('gpa', 'value')
-    ]
+    ],
+    prevent_initial_call=True
 )
-def predict_grade(n_clicks, *inputs):
+def predict_grade(n_clicks, studentid, age, gender, ethnicity, parentedu, studytime, absences, tutoring, parentsupport, extra, sports, music, volunteer, gpa):
     print(f"Button clicked: {n_clicks}")
+    inputs = [studentid, age, gender, ethnicity, parentedu, studytime, absences, tutoring, parentsupport, extra, sports, music, volunteer, gpa]
     print(f"Inputs: {inputs}")
-    if n_clicks == 0:
-        print("No clicks yet, returning empty")
-        return ""
     
     if any(x is None for x in inputs):
         print("Error: One or more inputs are missing")
@@ -107,7 +106,7 @@ def predict_grade(n_clicks, *inputs):
         inputs = [float(x) for x in inputs]
         input_array = np.array(inputs).reshape(1, -1)
         print(f"Input array: {input_array}")
-        dummy_df = pd.DataFrame([inputs], columns=[
+        dummy_df = pd.DataFrame(input_array, columns=[
             'StudentID', 'Age', 'Gender', 'Ethnicity', 'ParentalEducation', 'StudyTimeWeekly',
             'Absences', 'Tutoring', 'ParentalSupport', 'Extracurricular', 
             'Sports', 'Music', 'Volunteering', 'GPA'
@@ -115,9 +114,9 @@ def predict_grade(n_clicks, *inputs):
         print(f"DataFrame: {dummy_df}")
         dummy_df_scaled = scaler.transform(dummy_df)
         print(f"Scaled Data: {dummy_df_scaled}")
-        prediction = model.predict(dummy_df_scaled)
+        prediction = model.predict(dummy_df_scaled, verbose=0)
         print(f"Prediction: {prediction}")
-        grade_class = np.argmax(prediction)
+        grade_class = np.argmax(prediction, axis=1)[0]
         print(f"Grade class: {grade_class}")
         grades = ['A', 'B', 'C', 'D', 'F']
         return f"Predicted Grade Class: {grades[grade_class]}"
