@@ -5,6 +5,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import pandas as pd
 import os
+
 # Load the trained model
 model = load_model("student_grade_classifier.h5")
 
@@ -14,6 +15,69 @@ server = app.server  # Needed for deployment on Render
 
 # Define app layout
 app.layout = html.Div([
+     html.Link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap'),
+
+    html.Style('''
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        label {
+            margin-top: 10px;
+            display: block;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        input[type=number] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3498db;
+        }
+
+        h2 {
+            text-align: center;
+            color: #27ae60;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+    '''),
     html.H1("Student Grade Predictor", style={'textAlign': 'center'}),
     
     html.Div([
@@ -56,7 +120,7 @@ app.layout = html.Div([
         html.Br(),
         html.Button("Predict Grade", id='predict-button', n_clicks=0),
         html.H2(id='prediction-output', style={'marginTop': '20px'})
-    ], style={'width': '50%', 'margin': 'auto'})
+    ], className='form-container')
 ])
 
 # Prediction logic
