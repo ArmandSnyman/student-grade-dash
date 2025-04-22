@@ -13,6 +13,12 @@ ARTIFACTS_DIR = os.path.join(BASE_DIR, "..", "artifacts")
 MODEL_PATH = os.path.join(ARTIFACTS_DIR, "student_grade_classifier.h5")
 SCALER_PATH = os.path.join(ARTIFACTS_DIR, "scaler.joblib")
 
+# Debug paths
+print("Current Working Directory:", os.getcwd())
+print("Artifacts directory:", ARTIFACTS_DIR)
+print("Model file exists:", os.path.exists(MODEL_PATH))
+print("Scaler file exists:", os.path.exists(SCALER_PATH))
+
 # Load the trained model and scaler
 try:
     model = load_model(MODEL_PATH)
@@ -55,7 +61,7 @@ app.layout = html.Div([
         dcc.Input(id='volunteer', type='number', min=0, max=1, value=0),
         html.Br(),
         html.Button("Predict Grade", id='predict-button', n_clicks=0),
-        html.H2(id='prediction-output', className='prediction-result')
+        html.H2(id='prediction-output', style={'color': 'red', 'fontSize': '24px', 'marginTop': '20px'})
     ], className='form-container')
 ])
 
@@ -79,25 +85,41 @@ app.layout = html.Div([
     ]
 )
 def predict_grade(n_clicks, *inputs):
+    print(f"Button clicked: {n_clicks}")
+    print(f"Inputs: {inputs}")
     if n_clicks == 0:
+        print("No clicks yet, returning empty")
         return ""
     
-    # Convert input to model format
-    input_array = np.array(inputs).reshape(1, -1)
-    dummy_df = pd.DataFrame([inputs], columns=[
-        'Age', 'Gender', 'Ethnicity', 'ParentalEducation', 'StudyTimeWeekly',
-        'Absences', 'Tutoring', 'ParentalSupport', 'Extracurricular', 
-        'Sports', 'Music', 'Volunteering'
-    ])
-    dummy_df_scaled = scaler.transform(dummy_df)
-
-    prediction = model.predict(dummy_df_scaled)
-    grade_class = np.argmax(prediction)
-
-    grades = ['A', 'B', 'C', 'D', 'F']
-    return f"Predicted Grade Class: {grades[grade_class]}"
+    # Check for None or invalid inputs
+    if any(x is None for x in inputs):
+        print("Error: One or more inputs are missing")
+        return "Error: Please fill in all fields"
+    
+    try:
+        # Convert inputs to floats to ensure numeric
+        inputs = [float(x) for x in inputs]
+        input_array = np.array(inputs).reshape(1, -1)
+        print(f"Input array: {input_array}")
+        dummy_df = pd.DataFrame([inputs], columns=[
+            'Age', 'Gender', 'Ethnicity', 'ParentalEducation', 'StudyTimeWeekly',
+            'Absences', 'Tutoring', 'ParentalSupport', 'Extracurricular', 
+            'Sports', 'Music', 'Volunteering'
+        ])
+        print(f"DataFrame: {dummy_df}")
+        dummy_df_scaled = scaler.transform(dummy_df)
+        print(f"Scaled Data: {dummy_df_scaled}")
+        prediction = model.predict(dummy_df_scaled)
+        print(f"Prediction: {prediction}")
+        grade_class = np.argmax(prediction)
+        print(f"Grade class: {grade_class}")
+        grades = ['A', 'B', 'C', 'D', 'F']
+        return f"Predicted Grade Class: {grades[grade_class]}"
+    except Exception as e:
+        print(f"Error in prediction: {e}")
+        return f"Error: {str(e)}"
 
 # Run the app
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 10000))
-    app.run_server(debug=False, host="0.0.0.0", port=port)
+    app.run_server(debug=True, host="0.0.0.0", port=port)
