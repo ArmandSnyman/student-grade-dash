@@ -7,7 +7,7 @@ import pandas as pd
 import os
 import joblib
 # Load the trained model
-model = load_model("artifacts/student_grade_classifier.h5")
+model = load_model("../artifacts/student_grade_classifier.h5")
 
 # Initialize Dash app
 app = dash.Dash(__name__)
@@ -94,7 +94,7 @@ def predict_grade(n_clicks, *inputs):
         'Absences', 'Tutoring', 'ParentalSupport', 'Extracurricular', 
         'Sports', 'Music', 'Volunteering'
     ])
-    scaler = joblib.load("artifacts/scaler.joblib")
+    scaler = joblib.load("../artifacts/scaler.joblib")
     dummy_df_scaled = scaler.transform(dummy_df)  # WARNING: this should use the original scaler
 
     prediction = model.predict(dummy_df_scaled)
