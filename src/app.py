@@ -119,12 +119,17 @@ def predict_grade(n_clicks, studentid, age, gender, ethnicity, parentedu, studyt
         grade_class = np.argmax(prediction, axis=1)[0]
         print(f"Grade class: {grade_class}")
         grades = ['A', 'B', 'C', 'D', 'F']
-        return f"Predicted Grade Class: {grades[grade_class]}"
+        result = f"Predicted Grade Class: {grades[grade_class]}"
+        print(f"Returning result: {result}")
+        return result
     except Exception as e:
         print(f"Error in prediction: {e}")
         return f"Error: {str(e)}"
 
+# Debug callback registration
+print("Callback registered for predict-button")
+
 # Run the app
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 10000))
-    app.run_server(debug=True, host="0.0.0.0", port=port)
+    app.run_server(debug=False, host="0.0.0.0", port=port)
