@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output, State
 import numpy as np
 from tensorflow.keras.models import load_model
 import pandas as pd
-
+import os
 # Load the trained model
 model = load_model("student_grade_classifier.h5")
 
@@ -63,7 +63,7 @@ app.layout = html.Div([
 @app.callback(
     Output('prediction-output', 'children'),
     Input('predict-button', 'n_clicks'),
-    state=[
+    [
         State('age', 'value'),
         State('gender', 'value'),
         State('ethnicity', 'value'),
@@ -103,9 +103,6 @@ def predict_grade(n_clicks, *inputs):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
 
-server = app.server  # This exposes the server to Gunicorn
-
-if __name__ == '__main__':
-    app.run_server(debug=False, host="0.0.0.0", port=10000)
+    port = int(os.getenv("PORT", 10000))
+    app.run_server(debug=False, host="0.0.0.0", port=port)
